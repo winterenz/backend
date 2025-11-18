@@ -1,0 +1,18 @@
+2025/08/28 12:44:22.770452 logger.go:26: logger initialized at 2025-08-28T12:44:22+07:00
+2025/08/28 12:46:31.487681 logger.go:26: logger initialized at 2025-08-28T12:46:31+07:00
+2025/08/28 12:49:26.284173 logger.go:26: logger initialized at 2025-08-28T12:49:26+07:00
+2025/08/28 12:53:40.683344 logger.go:26: logger initialized at 2025-08-28T12:53:40+07:00
+2025/08/28 12:55:32.790957 logger.go:26: logger initialized at 2025-08-28T12:55:32+07:00
+2025/08/28 12:55:32.805008 main.go:21: failed to listen: listen tcp4 :3000: bind: address already in use
+2025/08/28 13:04:36.520405 logger.go:26: logger initialized at 2025-08-28T13:04:36+07:00
+2025/08/28 13:07:10.193114 logger.go:26: logger initialized at 2025-08-28T13:07:10+07:00
+2025/08/28 13:08:50.863674 logger.go:26: logger initialized at 2025-08-28T13:08:50+07:00
+2025/08/28 13:54:28.501479 logger.go:26: logger initialized at 2025-08-28T13:54:28+07:00
+2025/08/28 13:54:28.504798 db.go:15: dial tcp [::1]:5432: connect: connection refused
+2025/08/28 13:54:40.459911 logger.go:26: logger initialized at 2025-08-28T13:54:40+07:00
+2025/08/28 13:54:40.461391 db.go:15: dial tcp [::1]:5432: connect: connection refused
+2025/08/28 13:54:54.625966 logger.go:26: logger initialized at 2025-08-28T13:54:54+07:00
+2025/08/28 13:54:54.627415 db.go:15: dial tcp [::1]:5432: connect: connection refused
+2025/08/28 13:56:21.939418 logger.go:26: logger initialized at 2025-08-28T13:56:21+07:00
+2025/08/28 13:56:21.943782 db.go:15: dial tcp [::1]:5432: connect: connection refused
+2025/09/04 16:54:59.933527 logger.go:26: logger initialized at 2025-09-04T16:54:59+07:00
