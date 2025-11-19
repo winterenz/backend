@@ -72,7 +72,7 @@ func (s *FileService) uploadWithRule(c *fiber.Ctx, category string, maxSize int6
 	} else if role != "admin" && targetUserID != authUserID {
 		return c.Status(fiber.StatusForbidden).JSON(model.ErrorResponse{
 			Success: false,
-			Message: "anda tidak berhak menghapus data orang lain ya :p",
+			Message: "anda tidak berhak mengupload file orang lain ya :p",
 		})
 	}
 
