@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"prak3/clean-architecture-fiber-mongo/app/model"
+	"prak/clean-architecture-fiber-mongo/app/model"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

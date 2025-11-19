@@ -4,9 +4,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"prak3/clean-architecture-fiber-mongo/app/repository"
-	"prak3/clean-architecture-fiber-mongo/app/service"
-	"prak3/clean-architecture-fiber-mongo/middleware"
+	"prak/clean-architecture-fiber-mongo/app/repository"
+	"prak/clean-architecture-fiber-mongo/app/service"
+	"prak/clean-architecture-fiber-mongo/middleware"
 )
 
 func Register(app *fiber.App, db *mongo.Database) {
@@ -26,6 +26,7 @@ func Register(app *fiber.App, db *mongo.Database) {
 	alumniSvc := service.NewAlumniService(alumniRepo)
 
   	alumni := protected.Group("/alumni")
+
 	alumni.Get("/", alumniSvc.List)
 	alumni.Get("/:id", alumniSvc.Get)
 	alumni.Get("/jurusan/:jurusan", alumniSvc.ListByJurusan)
@@ -35,6 +36,7 @@ func Register(app *fiber.App, db *mongo.Database) {
 	pekerjaanSvc := service.NewPekerjaanService(pekerjaanRepo)
 
   	pekerjaan := protected.Group("/pekerjaan")
+
 	pekerjaan.Get("/", pekerjaanSvc.List)
 	pekerjaan.Get("/trash", pekerjaanSvc.ListTrash)
 	pekerjaan.Get("/:id", pekerjaanSvc.Get)
@@ -48,14 +50,19 @@ func Register(app *fiber.App, db *mongo.Database) {
 	fileSvc := service.NewFileService(fileRepo, "./uploads")
 
 	files := protected.Group("/files")  
+
 	files.Get("/", fileSvc.GetAllFiles)
 	files.Get("/:id", fileSvc.GetFileByID)
 	files.Delete("/:id", fileSvc.DeleteFile)
 
-	// User
-	users := protected.Group("/users")
-	users.Post("/me/upload/foto", fileSvc.UploadFoto)
-	users.Post("/me/upload/sertifikat", fileSvc.UploadSertifikat)
+	// Upload
+	upload := protected.Group("/users")
+	upload.Post("/:user_id/upload/foto", fileSvc.UploadFoto)
+	upload.Post("/:user_id/upload/sertifikat", fileSvc.UploadSertifikat)
+
+	// Alternatif
+	upload.Post("/me/upload/foto", fileSvc.UploadFoto)
+	upload.Post("/me/upload/sertifikat", fileSvc.UploadSertifikat)
 
 	// Admin
 	admin := protected.Group("", middleware.AdminOnly())
@@ -69,7 +76,7 @@ func Register(app *fiber.App, db *mongo.Database) {
 	admin.Post("/pekerjaan", pekerjaanSvc.Create)
 	admin.Put("/pekerjaan/:id", pekerjaanSvc.Update)
 
-	//File
+	// File
 	admin.Post("/users/:user_id/upload/foto", fileSvc.UploadFoto)
 	admin.Post("/users/:user_id/upload/sertifikat", fileSvc.UploadSertifikat)
 }

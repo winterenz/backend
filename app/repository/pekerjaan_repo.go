@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"prak3/clean-architecture-fiber-mongo/app/model"
+	"prak/clean-architecture-fiber-mongo/app/model"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,37 +15,22 @@ import (
 )
 
 type PekerjaanRepository interface {
-	// read
 	List(ctx context.Context) ([]model.Pekerjaan, error)
 	GetByID(ctx context.Context, id string) (*model.Pekerjaan, error)
 	GetByIDAny(ctx context.Context, id string) (*model.Pekerjaan, error) // termasuk yang soft-deleted
 	ListByAlumniID(ctx context.Context, alumniID string) ([]model.Pekerjaan, error)
-
-	// write
 	Create(ctx context.Context, in model.CreatePekerjaanReq) (string, error)
 	Update(ctx context.Context, id string, in model.UpdatePekerjaanReq) error
-
-	// pagination
 	ListPaged(ctx context.Context, search, sortBy, order string, limit, offset int) ([]model.Pekerjaan, error)
 	Count(ctx context.Context, search string) (int64, error)
-
-	// soft delete
 	SoftDeleteAdmin(ctx context.Context, id string, username string) error
 	SoftDeleteOwned(ctx context.Context, id string, alumniID string, username string) error
-
-	// trash list
 	ListTrashed(ctx context.Context, search, sortBy, order string, limit, offset int) ([]model.Pekerjaan, error)
 	CountTrashed(ctx context.Context, search string) (int64, error)
-
-	// restore
 	RestoreAdmin(ctx context.Context, id string, username string) error
 	RestoreOwned(ctx context.Context, id string, alumniID string, username string) error
-
-	// hard delete
 	HardDeleteAdmin(ctx context.Context, id string) error
 	HardDeleteOwned(ctx context.Context, id string, alumniID string) error
-
-	// validasi kepemilikan
 	GetAlumniByUserID(ctx context.Context, userID string) (*model.Alumni, error)
 }
 
@@ -61,7 +46,7 @@ func NewPekerjaanRepository(db *mongo.Database) PekerjaanRepository {
 	}
 }
 
-// ---------- helpers ----------
+
 func oid(hex string) (primitive.ObjectID, error) { return primitive.ObjectIDFromHex(hex) }
 
 var pekerjaanSortCols = map[string]string{
@@ -99,7 +84,6 @@ func searchFilter(base bson.M, search string) bson.M {
 	return base
 }
 
-// ---------- reads ----------
 func (r *pekerjaanRepo) List(ctx context.Context) ([]model.Pekerjaan, error) {
 	cur, err := r.cPekerjaan.Find(ctx, bson.M{"is_deleted": false}, options.Find().SetSort(bson.D{{Key: "created_at", Value: -1}}))
 	if err != nil { return nil, err }
@@ -135,7 +119,6 @@ func (r *pekerjaanRepo) ListByAlumniID(ctx context.Context, alumniID string) ([]
 	return out, nil
 }
 
-// ---------- writes ----------
 func (r *pekerjaanRepo) Create(ctx context.Context, in model.CreatePekerjaanReq) (string, error) {
 	aid, err := oid(in.AlumniID); if err != nil { return "", err }
 	now := time.Now()
@@ -160,36 +143,64 @@ func (r *pekerjaanRepo) Create(ctx context.Context, in model.CreatePekerjaanReq)
 }
 
 func (r *pekerjaanRepo) Update(ctx context.Context, id string, in model.UpdatePekerjaanReq) error {
-	_id, err := oid(id); if err != nil { return err }
-	set := bson.M{
-		"nama_perusahaan": in.NamaPerusahaan,
-		"posisi_jabatan":  in.PosisiJabatan,
-		"bidang_industri": in.BidangIndustri,
-		"lokasi_kerja":    in.LokasiKerja,
-		"gaji_range":      in.GajiRange,
-		"tanggal_mulai_kerja":  in.TanggalMulaiKerja,
-		"tanggal_selesai_kerja": in.TanggalSelesaiKerja,
-		"status_pekerjaan": in.StatusPekerjaan,
-		"deskripsi_pekerjaan": in.Deskripsi,
-		"updated_at":      time.Now(),
+	_id, err := oid(id)
+	if err != nil {
+		return err
 	}
-	// alumni_id boleh diubah (opsional) — kalau body kirim AlumniID
-	if strings.TrimSpace(in.AlumniID) != "" {
-		if aid, err := oid(in.AlumniID); err == nil {
+
+	set := bson.M{
+		"updated_at": time.Now(),
+	}
+
+	if in.NamaPerusahaan != nil {
+		set["nama_perusahaan"] = *in.NamaPerusahaan
+	}
+	if in.PosisiJabatan != nil {
+		set["posisi_jabatan"] = *in.PosisiJabatan
+	}
+	if in.BidangIndustri != nil {
+		set["bidang_industri"] = *in.BidangIndustri
+	}
+	if in.LokasiKerja != nil {
+		set["lokasi_kerja"] = *in.LokasiKerja
+	}
+	if in.GajiRange != nil {
+		set["gaji_range"] = *in.GajiRange
+	}
+	if in.TanggalMulaiKerja != nil {
+		set["tanggal_mulai_kerja"] = *in.TanggalMulaiKerja
+	}
+	if in.TanggalSelesaiKerja != nil {
+		set["tanggal_selesai_kerja"] = *in.TanggalSelesaiKerja
+	}
+	if in.StatusPekerjaan != nil {
+		set["status_pekerjaan"] = *in.StatusPekerjaan
+	}
+	if in.Deskripsi != nil {
+		set["deskripsi_pekerjaan"] = *in.Deskripsi
+	}
+	if in.AlumniID != nil && strings.TrimSpace(*in.AlumniID) != "" {
+		if aid, err := oid(*in.AlumniID); err == nil {
 			set["alumni_id"] = aid
 		}
 	}
+	if len(set) == 1 { // hanya updated_at
+		return errors.New("tidak ada field yang di-update")
+	}
 	res, err := r.cPekerjaan.UpdateOne(ctx, bson.M{"_id": _id, "is_deleted": false}, bson.M{"$set": set})
-	if err != nil { return err }
-	if res.MatchedCount == 0 { return mongo.ErrNoDocuments }
+	if err != nil {
+		return err
+	}
+	if res.MatchedCount == 0 {
+		return mongo.ErrNoDocuments
+	}
 	return nil
 }
 
-// ---------- pagination (non-trash) ----------
 func (r *pekerjaanRepo) ListPaged(ctx context.Context, search, sortBy, order string, limit, offset int) ([]model.Pekerjaan, error) {
 	filter := searchFilter(bson.M{"is_deleted": false}, search)
 	opts := options.Find().
-		SetSort(normalizeSort(sortBy, order)).
+		SetSort(normalizePekSort(sortBy, order)).
 		SetLimit(int64(limit)).
 		SetSkip(int64(offset))
 	cur, err := r.cPekerjaan.Find(ctx, filter, opts)
@@ -205,7 +216,6 @@ func (r *pekerjaanRepo) Count(ctx context.Context, search string) (int64, error)
 	return r.cPekerjaan.CountDocuments(ctx, filter)
 }
 
-// ---------- soft delete ----------
 func (r *pekerjaanRepo) SoftDeleteAdmin(ctx context.Context, id string, username string) error {
 	_id, err := oid(id); if err != nil { return err }
 	set := bson.M{"is_deleted": true, "deleted_by": username, "deleted_at": time.Now()}
@@ -226,11 +236,10 @@ func (r *pekerjaanRepo) SoftDeleteOwned(ctx context.Context, id string, alumniID
 	return nil
 }
 
-// ---------- trash list ----------
 func (r *pekerjaanRepo) ListTrashed(ctx context.Context, search, sortBy, order string, limit, offset int) ([]model.Pekerjaan, error) {
 	filter := searchFilter(bson.M{"is_deleted": true}, search)
 	opts := options.Find().
-		SetSort(normalizeSort(sortBy, order)).
+		SetSort(normalizePekSort(sortBy, order)).
 		SetLimit(int64(limit)).
 		SetSkip(int64(offset))
 	cur, err := r.cPekerjaan.Find(ctx, filter, opts)
@@ -246,7 +255,6 @@ func (r *pekerjaanRepo) CountTrashed(ctx context.Context, search string) (int64,
 	return r.cPekerjaan.CountDocuments(ctx, filter)
 }
 
-// ---------- restore ----------
 func (r *pekerjaanRepo) RestoreAdmin(ctx context.Context, id string, _ string) error {
 	_id, err := oid(id); if err != nil { return err }
 	res, err := r.cPekerjaan.UpdateOne(ctx, bson.M{"_id": _id, "is_deleted": true},
@@ -267,7 +275,6 @@ func (r *pekerjaanRepo) RestoreOwned(ctx context.Context, id string, alumniID st
 	return nil
 }
 
-// ---------- hard delete ----------
 func (r *pekerjaanRepo) HardDeleteAdmin(ctx context.Context, id string) error {
 	_id, err := oid(id); if err != nil { return err }
 	res, err := r.cPekerjaan.DeleteOne(ctx, bson.M{"_id": _id, "is_deleted": true})
@@ -285,7 +292,6 @@ func (r *pekerjaanRepo) HardDeleteOwned(ctx context.Context, id string, alumniID
 	return nil
 }
 
-// ---------- helper: ambil alumni milik user ----------
 func (r *pekerjaanRepo) GetAlumniByUserID(ctx context.Context, userID string) (*model.Alumni, error) {
 	uid, err := oid(userID); if err != nil { return nil, err }
 	var a model.Alumni

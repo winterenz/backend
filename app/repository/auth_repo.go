@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"prak3/clean-architecture-fiber-mongo/app/model"
+	"prak/clean-architecture-fiber-mongo/app/model"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,7 +20,6 @@ func NewUserRepository(db *mongo.Database) UserRepository {
 }
 
 func (r *userRepo) GetByUsernameOrEmail(ctx context.Context, x string) (*model.User, error) {
-	// Cari by username ATAU email
 	filter := bson.M{
 		"$or": []bson.M{
 			{"username": x},
@@ -31,7 +30,7 @@ func (r *userRepo) GetByUsernameOrEmail(ctx context.Context, x string) (*model.U
 	var u model.User
 	err := r.c.FindOne(ctx, filter).Decode(&u)
 	if err == mongo.ErrNoDocuments {
-		return nil, nil // tidak ketemu → biar service balas "username/password salah"
+		return nil, nil 
 	}
 	if err != nil {
 		return nil, err

@@ -1,14 +1,14 @@
-// @title Alumni & Jobs API
+// @title API Backend
 // @version 1.0
 // @description API untuk manajemen alumni, pekerjaan, file, dan autentikasi
 // @host localhost:3000
 // @BasePath /api
 // @schemes http
 
-// Gunakan skema HTTP Bearer agar Swagger otomatis tambahkan prefix "Bearer "
-// @securityDefinitions.type http
-// @securityDefinitions.scheme bearer
-// @securityDefinitions.bearerFormat JWT
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Masukkan token JWT
 
 package main
 
@@ -22,10 +22,11 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"prak3/clean-architecture-fiber-mongo/config"
-	"prak3/clean-architecture-fiber-mongo/database"
-	"prak3/clean-architecture-fiber-mongo/route"
-	_"prak3/clean-architecture-fiber-mongo/docs" // untuk swagger documentation
+	"prak/clean-architecture-fiber-mongo/config"
+	"prak/clean-architecture-fiber-mongo/database"
+	_ "prak/clean-architecture-fiber-mongo/docs" // untuk swagger documentation
+	"prak/clean-architecture-fiber-mongo/route"
+
 	fiberSwagger "github.com/swaggo/fiber-swagger"
 )
 
@@ -66,5 +67,7 @@ func main() {
 func disconnectMongo(client *mongo.Client) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	_ = client.Disconnect(ctx)
+	if err := client.Disconnect(ctx); err != nil {
+		log.Printf("Warning: error disconnecting MongoDB: %v\n", err)
+	}
 }

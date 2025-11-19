@@ -14,13 +14,9 @@ func ConnectMongo() (*mongo.Client, *mongo.Database, error) {
 	if uri == "" {
 		uri = "mongodb://localhost:27017"
 	}
-	dbName := os.Getenv("MONGO_DB_NAME")
-	if dbName == "" {
-		if alt := os.Getenv("MONGO_DB_NAME"); alt != "" {
-			dbName = alt
-		} else {
-			dbName = "alumnidb"
-		}
+	dbName := os.Getenv("DATABASE_NAME")
+	if dbName == ""{
+		dbName = "alumnidb"
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

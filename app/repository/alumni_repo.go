@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"prak3/clean-architecture-fiber-mongo/app/model"
+	"prak/clean-architecture-fiber-mongo/app/model"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -133,21 +133,37 @@ func (r *alumniRepo) Update(ctx context.Context, id string, in model.UpdateAlumn
 	if err != nil {
 		return err
 	}
+
 	set := bson.M{
-		"nim":          in.NIM,
-		"nama":         in.Nama,
-		"jurusan":      in.Jurusan,
-		"angkatan":     in.Angkatan,
-		"tahun_lulus":  in.TahunLulus,
-		"email":        in.Email,
-		"updated_at":   time.Now(),
+		"updated_at": time.Now(),
 	}
-	
+
+	if in.NIM != nil {
+		set["nim"] = *in.NIM
+	}
+	if in.Nama != nil {
+		set["nama"] = *in.Nama
+	}
+	if in.Jurusan != nil {
+		set["jurusan"] = *in.Jurusan
+	}
+	if in.Angkatan != nil {
+		set["angkatan"] = *in.Angkatan
+	}
+	if in.TahunLulus != nil {
+		set["tahun_lulus"] = *in.TahunLulus
+	}
+	if in.Email != nil {
+		set["email"] = *in.Email
+	}
 	if in.NoTelepon != nil {
 		set["no_telepon"] = *in.NoTelepon
 	}
 	if in.Alamat != nil {
 		set["alamat"] = *in.Alamat
+	}
+	if len(set) == 1 { // hanya updated_at
+		return errors.New("tidak ada field yang di-update")
 	}
 
 	res, err := r.c.UpdateOne(ctx, bson.M{"_id": oid}, bson.M{"$set": set})

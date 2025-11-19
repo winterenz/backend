@@ -2,11 +2,10 @@ package model
 
 import (
 	"time"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// model
+// Model
 type Alumni struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty"     json:"id,omitempty"`
 	UserID     primitive.ObjectID `bson:"user_id"           json:"user_id"`
@@ -22,16 +21,25 @@ type Alumni struct {
 	UpdatedAt  time.Time          `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
 
-// dto
+// DTO
 type CreateAlumniReq struct {
-	NIM        string  `json:"nim"`
-	Nama       string  `json:"nama"`
-	Jurusan    string  `json:"jurusan"`
+	NIM        string  `json:"nim" binding:"required"`
+	Nama       string  `json:"nama" binding:"required"`
+	Jurusan    string  `json:"jurusan" binding:"required"`
 	Angkatan   int     `json:"angkatan"`
 	TahunLulus int     `json:"tahun_lulus"`
-	Email      string  `json:"email"`
-	NoTelepon  *string `json:"no_telepon"`
-	Alamat     *string `json:"alamat"`
+	Email      string  `json:"email" binding:"required"`
+	NoTelepon  *string `json:"no_telepon,omitempty"`
+	Alamat     *string `json:"alamat,omitempty"`
 }
 
-type UpdateAlumniReq = CreateAlumniReq
+type UpdateAlumniReq struct {
+	NIM        *string `json:"nim,omitempty"`
+	Nama       *string `json:"nama,omitempty"`
+	Jurusan    *string `json:"jurusan,omitempty"`
+	Angkatan   *int    `json:"angkatan,omitempty"`
+	TahunLulus *int    `json:"tahun_lulus,omitempty"`
+	Email      *string `json:"email,omitempty"`
+	NoTelepon  *string `json:"no_telepon,omitempty"`
+	Alamat     *string `json:"alamat,omitempty"`
+}

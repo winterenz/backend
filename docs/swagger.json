@@ -5,7 +5,7 @@
     "swagger": "2.0",
     "info": {
         "description": "API untuk manajemen alumni, pekerjaan, file, dan autentikasi",
-        "title": "Alumni \u0026 Jobs API",
+        "title": "API Backend",
         "contact": {},
         "version": "1.0"
     },
@@ -19,7 +19,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Mengambil daftar alumni dengan pagination, sort, dan pencarian",
+                "description": "daftar alumni dengan pagination, sort, dan pencarian",
                 "consumes": [
                     "application/json"
                 ],
@@ -29,7 +29,7 @@
                 "tags": [
                     "Alumni"
                 ],
-                "summary": "Daftar alumni",
+                "summary": "daftar alumni",
                 "parameters": [
                     {
                         "type": "integer",
@@ -85,7 +85,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Menambahkan data alumni baru (user_id dari JWT)",
+                "description": "menambahkan data alumni baru (Admin Only)",
                 "consumes": [
                     "application/json"
                 ],
@@ -95,7 +95,7 @@
                 "tags": [
                     "Alumni"
                 ],
-                "summary": "Tambah alumni",
+                "summary": "tambah alumni",
                 "parameters": [
                     {
                         "description": "Body",
@@ -111,8 +111,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.AlumniResponse"
                         }
                     },
                     "400": {
@@ -143,14 +142,14 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Mengambil daftar alumni berdasarkan jurusan",
+                "description": "mengambil daftar alumni berdasarkan jurusan",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Alumni"
                 ],
-                "summary": "Daftar alumni berdasarkan jurusan",
+                "summary": "daftar alumni berdasarkan jurusan",
                 "parameters": [
                     {
                         "type": "string",
@@ -164,8 +163,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.AlumniListByJurusanResponse"
                         }
                     },
                     "400": {
@@ -190,14 +188,14 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Mengambil detail alumni berdasarkan ID (hex string)",
+                "description": "detail alumni berdasarkan ID (hex string)",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Alumni"
                 ],
-                "summary": "Detail alumni",
+                "summary": "detail alumni",
                 "parameters": [
                     {
                         "type": "string",
@@ -211,8 +209,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.AlumniResponse"
                         }
                     },
                     "400": {
@@ -235,7 +232,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Mengubah data alumni",
+                "description": "mengupdate data alumni",
                 "consumes": [
                     "application/json"
                 ],
@@ -245,7 +242,7 @@
                 "tags": [
                     "Alumni"
                 ],
-                "summary": "Ubah alumni",
+                "summary": "update alumni",
                 "parameters": [
                     {
                         "type": "string",
@@ -268,8 +265,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.AlumniResponse"
                         }
                     },
                     "400": {
@@ -298,14 +294,14 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Menghapus data alumni berdasarkan ID",
+                "description": "menghapus data alumni berdasarkan id (Admin Only)",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Alumni"
                 ],
-                "summary": "Hapus alumni",
+                "summary": "hapus alumni",
                 "parameters": [
                     {
                         "type": "string",
@@ -319,8 +315,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.SuccessMessageResponse"
                         }
                     },
                     "400": {
@@ -351,20 +346,19 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Mengambil semua file dari database",
+                "description": "mengambil semua file dari database",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "File"
                 ],
-                "summary": "Get all files",
+                "summary": "get all file",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.FileListResponse"
                         }
                     },
                     "500": {
@@ -383,14 +377,14 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Mengambil file berdasarkan ID",
+                "description": "mengambil file berdasarkan ID",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "File"
                 ],
-                "summary": "Get file by ID",
+                "summary": "get file by ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -404,8 +398,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.FileResponse"
                         }
                     },
                     "404": {
@@ -428,14 +421,14 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Menghapus file berdasarkan ID",
+                "description": "menghapus file berdasarkan id. admin dapat menghapus semua file, sedangkan user hanya dapat menghapus file miliknya sendiri.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "File"
                 ],
-                "summary": "Delete file",
+                "summary": "delete file",
                 "parameters": [
                     {
                         "type": "string",
@@ -449,8 +442,13 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.SuccessMessageResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "404": {
@@ -470,7 +468,7 @@
         },
         "/login": {
             "post": {
-                "description": "Autentikasi user dan mengembalikan JWT",
+                "description": "Autentikasi user dan klaim JWT",
                 "consumes": [
                     "application/json"
                 ],
@@ -480,7 +478,7 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Login user",
+                "summary": "login",
                 "parameters": [
                     {
                         "description": "Login payload",
@@ -496,7 +494,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.LoginResponse"
+                            "$ref": "#/definitions/model.LoginSuccessResponse"
                         }
                     },
                     "400": {
@@ -521,7 +519,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Mengambil daftar pekerjaan dengan pagination, sort, dan pencarian",
+                "description": "daftar pekerjaan dengan pagination, sort, dan pencarian",
                 "consumes": [
                     "application/json"
                 ],
@@ -531,7 +529,7 @@
                 "tags": [
                     "Pekerjaan"
                 ],
-                "summary": "Daftar pekerjaan",
+                "summary": "daftar pekerjaan",
                 "parameters": [
                     {
                         "type": "integer",
@@ -587,7 +585,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Menambahkan data pekerjaan baru (alumni_id dari JWT)",
+                "description": "menambah data pekerjaan berdasarkan id alumni",
                 "consumes": [
                     "application/json"
                 ],
@@ -597,7 +595,7 @@
                 "tags": [
                     "Pekerjaan"
                 ],
-                "summary": "Tambah pekerjaan",
+                "summary": "tambah pekerjaan",
                 "parameters": [
                     {
                         "description": "Body",
@@ -613,8 +611,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.PekerjaanResponse"
                         }
                     },
                     "400": {
@@ -666,8 +663,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.PekerjaanListByAlumniResponse"
                         }
                     },
                     "400": {
@@ -692,7 +688,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Mengambil daftar pekerjaan yang terhapus dengan pagination, sort, dan pencarian",
+                "description": "list trash pekerjaan (soft delete)",
                 "consumes": [
                     "application/json"
                 ],
@@ -702,7 +698,7 @@
                 "tags": [
                     "Pekerjaan"
                 ],
-                "summary": "Daftar pekerjaan yang terhapus",
+                "summary": "daftar trash pekerjaan (soft delete)",
                 "parameters": [
                     {
                         "type": "integer",
@@ -760,14 +756,14 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Mengambil detail pekerjaan berdasarkan ID (hex string)",
+                "description": "detail pekerjaan berdasarkan ID (hex string)",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Pekerjaan"
                 ],
-                "summary": "Detail pekerjaan",
+                "summary": "detail pekerjaan",
                 "parameters": [
                     {
                         "type": "string",
@@ -781,8 +777,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.PekerjaanResponse"
                         }
                     },
                     "400": {
@@ -805,7 +800,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Mengubah data pekerjaan berdasarkan ID",
+                "description": "update pekerjaan berdasarkan id (Admin Only)",
                 "consumes": [
                     "application/json"
                 ],
@@ -815,7 +810,7 @@
                 "tags": [
                     "Pekerjaan"
                 ],
-                "summary": "Ubah pekerjaan",
+                "summary": "update pekerjaan",
                 "parameters": [
                     {
                         "type": "string",
@@ -838,8 +833,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.PekerjaanResponse"
                         }
                     },
                     "400": {
@@ -868,14 +862,14 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Menghapus data pekerjaan secara soft (tidak benar-benar dihapus dari database)",
+                "description": "soft delete pekerjaan (Admin and Owner Only)",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Pekerjaan"
                 ],
-                "summary": "Hapus pekerjaan secara soft",
+                "summary": "soft delete",
                 "parameters": [
                     {
                         "type": "string",
@@ -889,8 +883,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.SuccessMessageResponse"
                         }
                     },
                     "400": {
@@ -927,14 +920,14 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Menghapus data pekerjaan secara hard (benar-benar dihapus dari database)",
+                "description": "meng-hard delete pekerjaan dari trash list (Admin and Owner Only)",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Pekerjaan"
                 ],
-                "summary": "Hapus pekerjaan secara hard",
+                "summary": "hard delete pekerjaan",
                 "parameters": [
                     {
                         "type": "string",
@@ -946,11 +939,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -986,14 +975,14 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Mengembalikan data pekerjaan yang terhapus berdasarkan ID",
+                "description": "merestore pekerjaan yang telah di soft delete (Admin and Owner Only)",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Pekerjaan"
                 ],
-                "summary": "Restore pekerjaan yang terhapus",
+                "summary": "restore pekerjaan soft delete",
                 "parameters": [
                     {
                         "type": "string",
@@ -1007,8 +996,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.SuccessMessageResponse"
                         }
                     },
                     "400": {
@@ -1052,26 +1040,25 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Profil user (dari JWT)",
+                "summary": "profil user",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.ProfileResponse"
                         }
                     }
                 }
             }
         },
-        "/users/:user_id/upload/foto": {
+        "/users/{user_id}/upload/foto": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Mengupload foto ke server",
+                "description": "Upload foto. admin dapat upload untuk semua user_id, sedangkan user hanya dapat upload untuk dirinya sendiri.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -1084,8 +1071,15 @@
                 "summary": "Upload foto",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "User ID (Admin: bisa upload untuk semua user_id, User: gunakan 'me' atau user_id sendiri)",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "type": "file",
-                        "description": "Foto",
+                        "description": "Foto (maks 1MB, format: jpeg/png/jpg)",
                         "name": "file",
                         "in": "formData",
                         "required": true
@@ -1095,8 +1089,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.FileUploadResponse"
                         }
                     },
                     "400": {
@@ -1111,6 +1104,12 @@
                             "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1120,14 +1119,14 @@
                 }
             }
         },
-        "/users/:user_id/upload/sertifikat": {
+        "/users/{user_id}/upload/sertifikat": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Mengupload sertifikat ke server",
+                "description": "Upload sertifikat. admin dapat upload untuk semua user_id, sedangkan user hanya dapat upload untuk dirinya sendiri.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -1140,8 +1139,15 @@
                 "summary": "Upload sertifikat",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "User ID (Admin: bisa upload untuk semua user_id, User: gunakan 'me' atau user_id sendiri)",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "type": "file",
-                        "description": "Sertifikat",
+                        "description": "Sertifikat (maks 2MB, format: pdf)",
                         "name": "file",
                         "in": "formData",
                         "required": true
@@ -1151,8 +1157,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.FileUploadResponse"
                         }
                     },
                     "400": {
@@ -1167,76 +1172,8 @@
                             "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/model.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/:user_id/upload/with-rule": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Mengupload file dengan aturan tertentu",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "File"
-                ],
-                "summary": "Upload file dengan aturan",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Kategori file",
-                        "name": "category",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "default": 2097152,
-                        "description": "Ukuran maksimal file (bytes)",
-                        "name": "maxSize",
-                        "in": "query"
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "collectionFormat": "csv",
-                        "default": "[]string{\"image/jpeg\", \"image/png\", \"image/jpg\", \"application/pdf\"}",
-                        "description": "Jenis file yang diizinkan",
-                        "name": "allowed",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/model.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/model.ErrorResponse"
                         }
@@ -1293,6 +1230,23 @@
                 }
             }
         },
+        "model.AlumniListByJurusanResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Alumni"
+                    }
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "model.AlumniListResponse": {
             "type": "object",
             "properties": {
@@ -1307,8 +1261,28 @@
                 }
             }
         },
+        "model.AlumniResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/model.Alumni"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "model.CreateAlumniReq": {
             "type": "object",
+            "required": [
+                "email",
+                "jurusan",
+                "nama",
+                "nim"
+            ],
             "properties": {
                 "alamat": {
                     "type": "string"
@@ -1338,6 +1312,15 @@
         },
         "model.CreatePekerjaanReq": {
             "type": "object",
+            "required": [
+                "alumni_id",
+                "bidang_industri",
+                "lokasi_kerja",
+                "nama_perusahaan",
+                "posisi_jabatan",
+                "status_pekerjaan",
+                "tanggal_mulai_kerja"
+            ],
             "properties": {
                 "alumni_id": {
                     "type": "string"
@@ -1385,6 +1368,88 @@
                 }
             }
         },
+        "model.FileDoc": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "file_name": {
+                    "type": "string"
+                },
+                "file_path": {
+                    "type": "string"
+                },
+                "file_size": {
+                    "type": "integer"
+                },
+                "file_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "original_name": {
+                    "type": "string"
+                },
+                "owner_user_id": {
+                    "type": "string"
+                },
+                "uploaded_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.FileListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.FileDoc"
+                    }
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.FileResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/model.FileDoc"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.FileUploadData": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.FileUploadResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/model.FileUploadData"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "model.LoginRequest": {
             "type": "object",
             "properties": {
@@ -1404,6 +1469,20 @@
                 },
                 "user": {
                     "$ref": "#/definitions/model.LoginUser"
+                }
+            }
+        },
+        "model.LoginSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/model.LoginResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
                 }
             }
         },
@@ -1481,7 +1560,6 @@
                     "type": "string"
                 },
                 "is_deleted": {
-                    "description": "Soft delete",
                     "type": "boolean"
                 },
                 "lokasi_kerja": {
@@ -1507,6 +1585,23 @@
                 }
             }
         },
+        "model.PekerjaanListByAlumniResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Pekerjaan"
+                    }
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "model.PekerjaanListResponse": {
             "type": "object",
             "properties": {
@@ -1518,6 +1613,56 @@
                 },
                 "meta": {
                     "$ref": "#/definitions/model.MetaInfo"
+                }
+            }
+        },
+        "model.PekerjaanResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/model.Pekerjaan"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.ProfileData": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ProfileResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/model.ProfileData"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "model.SuccessMessageResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
                 }
             }
         },
@@ -1584,6 +1729,14 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Masukkan token JWT",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

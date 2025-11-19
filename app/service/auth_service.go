@@ -6,9 +6,9 @@ import (
   
 	"github.com/gofiber/fiber/v2"
 
-	"prak3/clean-architecture-fiber-mongo/app/model"
-	"prak3/clean-architecture-fiber-mongo/app/repository"
-	"prak3/clean-architecture-fiber-mongo/helper"
+	"prak/clean-architecture-fiber-mongo/app/model"
+	"prak/clean-architecture-fiber-mongo/app/repository"
+	"prak/clean-architecture-fiber-mongo/helper"
 )
 
 type AuthService struct {
@@ -20,20 +20,23 @@ func NewAuthService(repo repository.UserRepository) *AuthService {
 }
 
 // Login godoc
-// @Summary Login user
-// @Description Autentikasi user dan mengembalikan JWT
+// @Summary login
+// @Description Autentikasi user dan klaim JWT
 // @Tags Auth
 // @Accept json
 // @Produce json
 // @Param body body model.LoginRequest true "Login payload"
-// @Success 200 {object} model.LoginResponse
+// @Success 200 {object} model.LoginSuccessResponse
 // @Failure 400 {object} model.ErrorResponse
 // @Failure 401 {object} model.ErrorResponse
 // @Router /login [post]
 func (s *AuthService) Login(c *fiber.Ctx) error {
 	var req model.LoginRequest
 	if err := c.BodyParser(&req); err != nil || req.Username == "" || req.Password == "" {
-		return c.Status(400).JSON(fiber.Map{"error": "username & password wajib"})
+		return c.Status(400).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "Username dan Password wajib diisi",
+		})
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -41,22 +44,31 @@ func (s *AuthService) Login(c *fiber.Ctx) error {
 
 	u, err := s.repo.GetByUsernameOrEmail(ctx, req.Username)
 	if err != nil || u == nil {
-		return c.Status(401).JSON(fiber.Map{"error": "username/password salah"})
+		return c.Status(401).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "Username atau Password salah",
+		})
 	}
 
 	if !helper.CheckPassword(req.Password, u.PasswordHash) {
-		return c.Status(401).JSON(fiber.Map{"error": "username/password salah"})
+		return c.Status(401).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "Username atau Password salah",
+		})
 	}
 
 	token, err := helper.GenerateToken(*u) 
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "gagal generate token"})
+		return c.Status(500).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "Gagal generate token",
+		})
 	}
 
-	return c.JSON(fiber.Map{
-		"success": true,
-		"message": "login berhasil",
-		"data": model.LoginResponse{
+	return c.JSON(model.LoginSuccessResponse{
+		Success: true,
+		Message: "Login berhasil",
+		Data: model.LoginResponse{
 			User: model.LoginUser{
 				ID:        u.ID.Hex(),
 				Username:  u.Username,
@@ -70,20 +82,24 @@ func (s *AuthService) Login(c *fiber.Ctx) error {
 }
 
 // Profile godoc
-// @Summary Profil user (dari JWT)
+// @Summary profil user
 // @Description Mengambil profil singkat dari klaim JWT yang aktif
 // @Tags Auth
 // @Produce json
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} model.ProfileResponse
 // @Security BearerAuth
 // @Router /profile [get]
 func (s *AuthService) Profile(c *fiber.Ctx) error {
-	return c.JSON(fiber.Map{
-		"success": true,
-		"data": fiber.Map{
-			"user_id":  c.Locals("user_id"),  
-			"username": c.Locals("username"),
-			"role":     c.Locals("role"),
+	userID, _ := c.Locals("user_id").(string)
+	username, _ := c.Locals("username").(string)
+	role, _ := c.Locals("role").(string)
+
+	return c.JSON(model.ProfileResponse{
+		Success: true,
+		Data: model.ProfileData{
+			UserID:   userID,
+			Username: username,
+			Role:     role,
 		},
 	})
 }

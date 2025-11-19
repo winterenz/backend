@@ -27,6 +27,17 @@ definitions:
       user_id:
         type: string
     type: object
+  model.AlumniListByJurusanResponse:
+    properties:
+      count:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/model.Alumni'
+        type: array
+      success:
+        type: boolean
+    type: object
   model.AlumniListResponse:
     properties:
       data:
@@ -35,6 +46,15 @@ definitions:
         type: array
       meta:
         $ref: '#/definitions/model.MetaInfo'
+    type: object
+  model.AlumniResponse:
+    properties:
+      data:
+        $ref: '#/definitions/model.Alumni'
+      message:
+        type: string
+      success:
+        type: boolean
     type: object
   model.CreateAlumniReq:
     properties:
@@ -54,6 +74,11 @@ definitions:
         type: string
       tahun_lulus:
         type: integer
+    required:
+    - email
+    - jurusan
+    - nama
+    - nim
     type: object
   model.CreatePekerjaanReq:
     properties:
@@ -77,11 +102,72 @@ definitions:
         type: string
       tanggal_selesai_kerja:
         type: string
+    required:
+    - alumni_id
+    - bidang_industri
+    - lokasi_kerja
+    - nama_perusahaan
+    - posisi_jabatan
+    - status_pekerjaan
+    - tanggal_mulai_kerja
     type: object
   model.ErrorResponse:
     properties:
       error:
         type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  model.FileDoc:
+    properties:
+      category:
+        type: string
+      file_name:
+        type: string
+      file_path:
+        type: string
+      file_size:
+        type: integer
+      file_type:
+        type: string
+      id:
+        type: string
+      original_name:
+        type: string
+      owner_user_id:
+        type: string
+      uploaded_at:
+        type: string
+    type: object
+  model.FileListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.FileDoc'
+        type: array
+      success:
+        type: boolean
+    type: object
+  model.FileResponse:
+    properties:
+      data:
+        $ref: '#/definitions/model.FileDoc'
+      success:
+        type: boolean
+    type: object
+  model.FileUploadData:
+    properties:
+      id:
+        type: string
+      path:
+        type: string
+    type: object
+  model.FileUploadResponse:
+    properties:
+      data:
+        $ref: '#/definitions/model.FileUploadData'
       message:
         type: string
       success:
@@ -100,6 +186,15 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/model.LoginUser'
+    type: object
+  model.LoginSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/model.LoginResponse'
+      message:
+        type: string
+      success:
+        type: boolean
     type: object
   model.LoginUser:
     properties:
@@ -150,7 +245,6 @@ definitions:
       id:
         type: string
       is_deleted:
-        description: Soft delete
         type: boolean
       lokasi_kerja:
         type: string
@@ -167,6 +261,17 @@ definitions:
       updated_at:
         type: string
     type: object
+  model.PekerjaanListByAlumniResponse:
+    properties:
+      count:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/model.Pekerjaan'
+        type: array
+      success:
+        type: boolean
+    type: object
   model.PekerjaanListResponse:
     properties:
       data:
@@ -175,6 +280,38 @@ definitions:
         type: array
       meta:
         $ref: '#/definitions/model.MetaInfo'
+    type: object
+  model.PekerjaanResponse:
+    properties:
+      data:
+        $ref: '#/definitions/model.Pekerjaan'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  model.ProfileData:
+    properties:
+      role:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  model.ProfileResponse:
+    properties:
+      data:
+        $ref: '#/definitions/model.ProfileData'
+      success:
+        type: boolean
+    type: object
+  model.SuccessMessageResponse:
+    properties:
+      message:
+        type: string
+      success:
+        type: boolean
     type: object
   model.UpdateAlumniReq:
     properties:
@@ -222,14 +359,14 @@ host: localhost:3000
 info:
   contact: {}
   description: API untuk manajemen alumni, pekerjaan, file, dan autentikasi
-  title: Alumni & Jobs API
+  title: API Backend
   version: "1.0"
 paths:
   /alumni:
     get:
       consumes:
       - application/json
-      description: Mengambil daftar alumni dengan pagination, sort, dan pencarian
+      description: daftar alumni dengan pagination, sort, dan pencarian
       parameters:
       - default: 1
         description: Halaman
@@ -266,13 +403,13 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Daftar alumni
+      summary: daftar alumni
       tags:
       - Alumni
     post:
       consumes:
       - application/json
-      description: Menambahkan data alumni baru (user_id dari JWT)
+      description: menambahkan data alumni baru (Admin Only)
       parameters:
       - description: Body
         in: body
@@ -286,8 +423,7 @@ paths:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.AlumniResponse'
         "400":
           description: Bad Request
           schema:
@@ -302,12 +438,12 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Tambah alumni
+      summary: tambah alumni
       tags:
       - Alumni
   /alumni/{id}:
     delete:
-      description: Menghapus data alumni berdasarkan ID
+      description: menghapus data alumni berdasarkan id (Admin Only)
       parameters:
       - description: Alumni ID (hex)
         in: path
@@ -320,8 +456,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.SuccessMessageResponse'
         "400":
           description: Bad Request
           schema:
@@ -336,11 +471,11 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Hapus alumni
+      summary: hapus alumni
       tags:
       - Alumni
     get:
-      description: Mengambil detail alumni berdasarkan ID (hex string)
+      description: detail alumni berdasarkan ID (hex string)
       parameters:
       - description: Alumni ID (hex)
         in: path
@@ -353,8 +488,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.AlumniResponse'
         "400":
           description: Bad Request
           schema:
@@ -365,13 +499,13 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Detail alumni
+      summary: detail alumni
       tags:
       - Alumni
     put:
       consumes:
       - application/json
-      description: Mengubah data alumni
+      description: mengupdate data alumni
       parameters:
       - description: Alumni ID (hex)
         in: path
@@ -390,8 +524,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.AlumniResponse'
         "400":
           description: Bad Request
           schema:
@@ -406,12 +539,12 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Ubah alumni
+      summary: update alumni
       tags:
       - Alumni
   /alumni/jurusan/{jurusan}:
     get:
-      description: Mengambil daftar alumni berdasarkan jurusan
+      description: mengambil daftar alumni berdasarkan jurusan
       parameters:
       - description: Nama jurusan
         in: path
@@ -424,8 +557,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.AlumniListByJurusanResponse'
         "400":
           description: Bad Request
           schema:
@@ -436,32 +568,32 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Daftar alumni berdasarkan jurusan
+      summary: daftar alumni berdasarkan jurusan
       tags:
       - Alumni
   /files:
     get:
-      description: Mengambil semua file dari database
+      description: mengambil semua file dari database
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.FileListResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Get all files
+      summary: get all file
       tags:
       - File
   /files/{id}:
     delete:
-      description: Menghapus file berdasarkan ID
+      description: menghapus file berdasarkan id. admin dapat menghapus semua file,
+        sedangkan user hanya dapat menghapus file miliknya sendiri.
       parameters:
       - description: File ID (hex)
         in: path
@@ -474,8 +606,11 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.SuccessMessageResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -486,11 +621,11 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Delete file
+      summary: delete file
       tags:
       - File
     get:
-      description: Mengambil file berdasarkan ID
+      description: mengambil file berdasarkan ID
       parameters:
       - description: File ID (hex)
         in: path
@@ -503,8 +638,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.FileResponse'
         "404":
           description: Not Found
           schema:
@@ -515,14 +649,14 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Get file by ID
+      summary: get file by ID
       tags:
       - File
   /login:
     post:
       consumes:
       - application/json
-      description: Autentikasi user dan mengembalikan JWT
+      description: Autentikasi user dan klaim JWT
       parameters:
       - description: Login payload
         in: body
@@ -536,7 +670,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.LoginResponse'
+            $ref: '#/definitions/model.LoginSuccessResponse'
         "400":
           description: Bad Request
           schema:
@@ -545,14 +679,14 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/model.ErrorResponse'
-      summary: Login user
+      summary: login
       tags:
       - Auth
   /pekerjaan:
     get:
       consumes:
       - application/json
-      description: Mengambil daftar pekerjaan dengan pagination, sort, dan pencarian
+      description: daftar pekerjaan dengan pagination, sort, dan pencarian
       parameters:
       - default: 1
         description: Halaman
@@ -589,13 +723,13 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Daftar pekerjaan
+      summary: daftar pekerjaan
       tags:
       - Pekerjaan
     post:
       consumes:
       - application/json
-      description: Menambahkan data pekerjaan baru (alumni_id dari JWT)
+      description: menambah data pekerjaan berdasarkan id alumni
       parameters:
       - description: Body
         in: body
@@ -609,8 +743,7 @@ paths:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.PekerjaanResponse'
         "400":
           description: Bad Request
           schema:
@@ -625,13 +758,12 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Tambah pekerjaan
+      summary: tambah pekerjaan
       tags:
       - Pekerjaan
   /pekerjaan/{id}:
     delete:
-      description: Menghapus data pekerjaan secara soft (tidak benar-benar dihapus
-        dari database)
+      description: soft delete pekerjaan (Admin and Owner Only)
       parameters:
       - description: Pekerjaan ID (hex)
         in: path
@@ -644,8 +776,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.SuccessMessageResponse'
         "400":
           description: Bad Request
           schema:
@@ -664,11 +795,11 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Hapus pekerjaan secara soft
+      summary: soft delete
       tags:
       - Pekerjaan
     get:
-      description: Mengambil detail pekerjaan berdasarkan ID (hex string)
+      description: detail pekerjaan berdasarkan ID (hex string)
       parameters:
       - description: Pekerjaan ID (hex)
         in: path
@@ -681,8 +812,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.PekerjaanResponse'
         "400":
           description: Bad Request
           schema:
@@ -693,13 +823,13 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Detail pekerjaan
+      summary: detail pekerjaan
       tags:
       - Pekerjaan
     put:
       consumes:
       - application/json
-      description: Mengubah data pekerjaan berdasarkan ID
+      description: update pekerjaan berdasarkan id (Admin Only)
       parameters:
       - description: Pekerjaan ID (hex)
         in: path
@@ -718,8 +848,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.PekerjaanResponse'
         "400":
           description: Bad Request
           schema:
@@ -734,13 +863,12 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Ubah pekerjaan
+      summary: update pekerjaan
       tags:
       - Pekerjaan
   /pekerjaan/{id}/hard:
     delete:
-      description: Menghapus data pekerjaan secara hard (benar-benar dihapus dari
-        database)
+      description: meng-hard delete pekerjaan dari trash list (Admin and Owner Only)
       parameters:
       - description: Pekerjaan ID (hex)
         in: path
@@ -752,9 +880,6 @@ paths:
       responses:
         "204":
           description: No Content
-          schema:
-            additionalProperties: true
-            type: object
         "400":
           description: Bad Request
           schema:
@@ -773,12 +898,13 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Hapus pekerjaan secara hard
+      summary: hard delete pekerjaan
       tags:
       - Pekerjaan
   /pekerjaan/{id}/restore:
     post:
-      description: Mengembalikan data pekerjaan yang terhapus berdasarkan ID
+      description: merestore pekerjaan yang telah di soft delete (Admin and Owner
+        Only)
       parameters:
       - description: Pekerjaan ID (hex)
         in: path
@@ -791,8 +917,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.SuccessMessageResponse'
         "400":
           description: Bad Request
           schema:
@@ -811,7 +936,7 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Restore pekerjaan yang terhapus
+      summary: restore pekerjaan soft delete
       tags:
       - Pekerjaan
   /pekerjaan/alumni/{alumni_id}:
@@ -829,8 +954,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.PekerjaanListByAlumniResponse'
         "400":
           description: Bad Request
           schema:
@@ -848,8 +972,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Mengambil daftar pekerjaan yang terhapus dengan pagination, sort,
-        dan pencarian
+      description: list trash pekerjaan (soft delete)
       parameters:
       - default: 1
         description: Halaman
@@ -886,7 +1009,7 @@ paths:
             $ref: '#/definitions/model.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Daftar pekerjaan yang terhapus
+      summary: daftar trash pekerjaan (soft delete)
       tags:
       - Pekerjaan
   /profile:
@@ -898,20 +1021,26 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.ProfileResponse'
       security:
       - BearerAuth: []
-      summary: Profil user (dari JWT)
+      summary: profil user
       tags:
       - Auth
-  /users/:user_id/upload/foto:
+  /users/{user_id}/upload/foto:
     post:
       consumes:
       - multipart/form-data
-      description: Mengupload foto ke server
+      description: Upload foto. admin dapat upload untuk semua user_id, sedangkan
+        user hanya dapat upload untuk dirinya sendiri.
       parameters:
-      - description: Foto
+      - description: 'User ID (Admin: bisa upload untuk semua user_id, User: gunakan
+          ''me'' atau user_id sendiri)'
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: 'Foto (maks 1MB, format: jpeg/png/jpg)'
         in: formData
         name: file
         required: true
@@ -922,14 +1051,17 @@ paths:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.FileUploadResponse'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/model.ErrorResponse'
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/model.ErrorResponse'
         "500":
@@ -941,13 +1073,20 @@ paths:
       summary: Upload foto
       tags:
       - File
-  /users/:user_id/upload/sertifikat:
+  /users/{user_id}/upload/sertifikat:
     post:
       consumes:
       - multipart/form-data
-      description: Mengupload sertifikat ke server
+      description: Upload sertifikat. admin dapat upload untuk semua user_id, sedangkan
+        user hanya dapat upload untuk dirinya sendiri.
       parameters:
-      - description: Sertifikat
+      - description: 'User ID (Admin: bisa upload untuk semua user_id, User: gunakan
+          ''me'' atau user_id sendiri)'
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: 'Sertifikat (maks 2MB, format: pdf)'
         in: formData
         name: file
         required: true
@@ -958,14 +1097,17 @@ paths:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/model.FileUploadResponse'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/model.ErrorResponse'
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/model.ErrorResponse'
         "500":
@@ -977,55 +1119,12 @@ paths:
       summary: Upload sertifikat
       tags:
       - File
-  /users/:user_id/upload/with-rule:
-    post:
-      consumes:
-      - multipart/form-data
-      description: Mengupload file dengan aturan tertentu
-      parameters:
-      - description: Kategori file
-        in: query
-        name: category
-        required: true
-        type: string
-      - default: 2097152
-        description: Ukuran maksimal file (bytes)
-        in: query
-        name: maxSize
-        type: integer
-      - collectionFormat: csv
-        default: '[]string{"image/jpeg", "image/png", "image/jpg", "application/pdf"}'
-        description: Jenis file yang diizinkan
-        in: query
-        items:
-          type: string
-        name: allowed
-        type: array
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Upload file dengan aturan
-      tags:
-      - File
 schemes:
 - http
+securityDefinitions:
+  BearerAuth:
+    description: Masukkan token JWT
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

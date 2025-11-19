@@ -2,7 +2,6 @@ package model
 
 import (
 	"time"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -20,26 +19,35 @@ type Pekerjaan struct {
 	Deskripsi          *string            `bson:"deskripsi_pekerjaan,omitempty" json:"deskripsi_pekerjaan,omitempty"`
 	CreatedAt          time.Time          `bson:"created_at" json:"created_at"`
 	UpdatedAt          time.Time          `bson:"updated_at" json:"updated_at"`
-
-	// Soft delete
 	IsDeleted bool       `bson:"is_deleted" json:"is_deleted"`
 	DeletedBy *string    `bson:"deleted_by,omitempty" json:"deleted_by,omitempty"`
 	DeletedAt *time.Time `bson:"deleted_at,omitempty" json:"deleted_at,omitempty"`
 }
 
-// dto
-
+// DTO
 type CreatePekerjaanReq struct {
-	AlumniID            string     `json:"alumni_id"`
-	NamaPerusahaan      string     `json:"nama_perusahaan"`
-	PosisiJabatan       string     `json:"posisi_jabatan"`
-	BidangIndustri      string     `json:"bidang_industri"`
-	LokasiKerja         string     `json:"lokasi_kerja"`
-	GajiRange           *string    `json:"gaji_range"`
-	TanggalMulaiKerja   time.Time  `json:"tanggal_mulai_kerja"`
-	TanggalSelesaiKerja *time.Time `json:"tanggal_selesai_kerja"`
-	StatusPekerjaan     string     `json:"status_pekerjaan"`
-	Deskripsi           *string    `json:"deskripsi_pekerjaan"`
+	AlumniID            string     `json:"alumni_id" binding:"required"`
+	NamaPerusahaan      string     `json:"nama_perusahaan" binding:"required"`
+	PosisiJabatan       string     `json:"posisi_jabatan" binding:"required"`
+	BidangIndustri      string     `json:"bidang_industri" binding:"required"`
+	LokasiKerja         string     `json:"lokasi_kerja" binding:"required"`
+	GajiRange           *string    `json:"gaji_range,omitempty"`
+	TanggalMulaiKerja   time.Time  `json:"tanggal_mulai_kerja" binding:"required"`
+	TanggalSelesaiKerja *time.Time `json:"tanggal_selesai_kerja,omitempty"`
+	StatusPekerjaan     string     `json:"status_pekerjaan" binding:"required"`
+	Deskripsi           *string    `json:"deskripsi_pekerjaan,omitempty"`
 }
 
-type UpdatePekerjaanReq = CreatePekerjaanReq
+// Update
+type UpdatePekerjaanReq struct {
+	AlumniID            *string    `json:"alumni_id,omitempty"`
+	NamaPerusahaan      *string    `json:"nama_perusahaan,omitempty"`
+	PosisiJabatan       *string    `json:"posisi_jabatan,omitempty"`
+	BidangIndustri      *string    `json:"bidang_industri,omitempty"`
+	LokasiKerja         *string    `json:"lokasi_kerja,omitempty"`
+	GajiRange           *string    `json:"gaji_range,omitempty"`
+	TanggalMulaiKerja   *time.Time `json:"tanggal_mulai_kerja,omitempty"`
+	TanggalSelesaiKerja *time.Time `json:"tanggal_selesai_kerja,omitempty"`
+	StatusPekerjaan     *string    `json:"status_pekerjaan,omitempty"`
+	Deskripsi           *string    `json:"deskripsi_pekerjaan,omitempty"`
+}

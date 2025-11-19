@@ -1,4 +1,4 @@
-module prak3/clean-architecture-fiber-mongo
+module prak/clean-architecture-fiber-mongo
 
 go 1.25.0
 

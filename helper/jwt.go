@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"prak3/clean-architecture-fiber-mongo/app/model"
+	"prak/clean-architecture-fiber-mongo/app/model"
 
 	"github.com/golang-jwt/jwt/v5"
 )

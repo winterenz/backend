@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"prak3/clean-architecture-fiber-mongo/helper"
+	"prak/clean-architecture-fiber-mongo/helper"
 )
 
 func AuthRequired() fiber.Handler {
@@ -15,12 +15,20 @@ func AuthRequired() fiber.Handler {
 				JSON(fiber.Map{"success": false, "message": "Token tidak ditemukan"})
 		}
 
-		// format Bearer (case-insensitive)
-		if len(bearer) < 7 || !strings.EqualFold(bearer[:7], "Bearer ") {
-			return c.Status(fiber.StatusUnauthorized).
-				JSON(fiber.Map{"success": false, "message": "Format Authorization salah"})
+		var token string
+		// Menerima format "Bearer {token}" atau hanya "{token}"
+		if len(bearer) >= 7 && strings.EqualFold(bearer[:7], "Bearer ") {
+			// Format: Bearer {token}
+			token = strings.TrimSpace(bearer[7:])
+		} else {
+			// Format: {token} saja (tanpa Bearer prefix)
+			token = strings.TrimSpace(bearer)
 		}
-		token := strings.TrimSpace(bearer[7:])
+		
+		if token == "" {
+			return c.Status(fiber.StatusUnauthorized).
+				JSON(fiber.Map{"success": false, "message": "Token tidak ditemukan"})
+		}
 
 		claims, err := helper.ValidateToken(token)
 		if err != nil {
@@ -36,10 +44,10 @@ func AuthRequired() fiber.Handler {
 
 		role := strings.ToLower(claims.Role)
 
-		c.Locals("user_id",  claims.UserID)  
+		c.Locals("user_id", claims.UserID)  
 		c.Locals("username", claims.Username)
-		c.Locals("role",     role)
-		c.Locals("user",     claims)
+		c.Locals("role", role)
+		c.Locals("user", claims)
 
 		return c.Next()
 	}

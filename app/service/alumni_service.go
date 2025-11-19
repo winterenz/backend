@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"prak3/clean-architecture-fiber-mongo/app/model"
-	"prak3/clean-architecture-fiber-mongo/app/repository"
+	"prak/clean-architecture-fiber-mongo/app/model"
+	"prak/clean-architecture-fiber-mongo/app/repository"
 )
 
 type AlumniService struct {
@@ -19,8 +19,8 @@ func NewAlumniService(repo repository.AlumniRepository) *AlumniService {
 }
 
 // List Alumni godoc
-// @Summary Daftar alumni
-// @Description Mengambil daftar alumni dengan pagination, sort, dan pencarian
+// @Summary daftar alumni
+// @Description daftar alumni dengan pagination, sort, dan pencarian
 // @Tags Alumni
 // @Accept json
 // @Produce json
@@ -51,12 +51,18 @@ func (s *AlumniService) List(c *fiber.Ctx) error {
 
 	items, err := s.Repo.ListPaged(ctx, search, sortBy, order, limit, offset)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"success": false, "message": err.Error()})
+		return c.Status(500).JSON(model.ErrorResponse{
+			Success: false,
+			Message: err.Error(),
+		})
 	}
 
 	total, err := s.Repo.Count(ctx, search)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"success": false, "message": err.Error()})
+		return c.Status(500).JSON(model.ErrorResponse{
+			Success: false,
+			Message: err.Error(),
+		})
 	}
 	if items == nil { items = make([]model.Alumni, 0) }
 
@@ -77,12 +83,12 @@ func (s *AlumniService) List(c *fiber.Ctx) error {
 }
 
 // Get Alumni godoc
-// @Summary Detail alumni
-// @Description Mengambil detail alumni berdasarkan ID (hex string)
+// @Summary detail alumni
+// @Description detail alumni berdasarkan ID (hex string)
 // @Tags Alumni
 // @Produce json
 // @Param id path string true "Alumni ID (hex)"
-// @Success 200 {object} map[string]interface{}  // { success, data }
+// @Success 200 {object} model.AlumniResponse
 // @Failure 400 {object} model.ErrorResponse
 // @Failure 404 {object} model.ErrorResponse
 // @Security BearerAuth
@@ -90,7 +96,10 @@ func (s *AlumniService) List(c *fiber.Ctx) error {
 func (s *AlumniService) Get(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
-		return c.Status(400).JSON(fiber.Map{"success": false, "message": "ID tidak valid"})
+		return c.Status(400).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "id tidak valid",
+		})
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -98,22 +107,31 @@ func (s *AlumniService) Get(c *fiber.Ctx) error {
 
 	item, err := s.Repo.GetByID(ctx, id)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"success": false, "message": err.Error()})
+		return c.Status(500).JSON(model.ErrorResponse{
+			Success: false,
+			Message: err.Error(),
+		})
 	}
 	if item == nil {
-		return c.Status(404).JSON(fiber.Map{"success": false, "message": "Data tidak ditemukan"})
+		return c.Status(404).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "data tidak ditemukan",
+		})
 	}
-	return c.JSON(fiber.Map{"success": true, "data": item})
+	return c.JSON(model.AlumniResponse{
+		Success: true,
+		Data:    item,
+	})
 }
 
 // Create Alumni godoc
-// @Summary Tambah alumni
-// @Description Menambahkan data alumni baru (user_id dari JWT)
+// @Summary tambah alumni
+// @Description menambahkan data alumni baru (Admin Only)
 // @Tags Alumni
 // @Accept json
 // @Produce json
 // @Param body body model.CreateAlumniReq true "Body"
-// @Success 201 {object} map[string]interface{} // { success, data }
+// @Success 201 {object} model.AlumniResponse
 // @Failure 400 {object} model.ErrorResponse
 // @Failure 401 {object} model.ErrorResponse
 // @Failure 500 {object} model.ErrorResponse
@@ -122,15 +140,24 @@ func (s *AlumniService) Get(c *fiber.Ctx) error {
 func (s *AlumniService) Create(c *fiber.Ctx) error {
 	var in model.CreateAlumniReq
 	if err := c.BodyParser(&in); err != nil {
-		return c.Status(400).JSON(fiber.Map{"success": false, "message": "body tidak valid"})
+		return c.Status(400).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "body tidak valid",
+		})
 	}
 	if in.NIM == "" || in.Nama == "" || in.Jurusan == "" || in.Email == "" {
-		return c.Status(400).JSON(fiber.Map{"success": false, "message": "NIM, nama, jurusan, email wajib"})
+		return c.Status(400).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "NIM, nama, jurusan, email wajib diisi",
+		})
 	}
 
 	uidHex, _ := c.Locals("user_id").(string)
 	if uidHex == "" {
-		return c.Status(401).JSON(fiber.Map{"success": false, "message": "User tidak terautentikasi"})
+		return c.Status(401).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "user tidak ditemukan",
+		})
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -138,21 +165,39 @@ func (s *AlumniService) Create(c *fiber.Ctx) error {
 
 	newID, err := s.Repo.Create(ctx, in, uidHex)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"success": false, "message": err.Error()})
+		return c.Status(500).JSON(model.ErrorResponse{
+			Success: false,
+			Message: err.Error(),
+		})
 	}
-	item, _ := s.Repo.GetByID(ctx, newID)
-	return c.Status(201).JSON(fiber.Map{"success": true, "data": item})
+	item, err := s.Repo.GetByID(ctx, newID)
+	if err != nil {
+		return c.Status(500).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "gagal mengambil data setelah create: " + err.Error(),
+		})
+	}
+	if item == nil {
+		return c.Status(500).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "data tidak ditemukan setelah create",
+		})
+	}
+	return c.Status(201).JSON(model.AlumniResponse{
+		Success: true,
+		Data:    item,
+	})
 }
 
 // Update Alumni godoc
-// @Summary Ubah alumni
-// @Description Mengubah data alumni
+// @Summary update alumni
+// @Description mengupdate data alumni
 // @Tags Alumni
 // @Accept json
 // @Produce json
 // @Param id path string true "Alumni ID (hex)"
 // @Param body body model.UpdateAlumniReq true "Body"
-// @Success 200 {object} map[string]interface{} // { success, data }
+// @Success 200 {object} model.AlumniResponse
 // @Failure 400 {object} model.ErrorResponse
 // @Failure 404 {object} model.ErrorResponse
 // @Failure 500 {object} model.ErrorResponse
@@ -161,35 +206,55 @@ func (s *AlumniService) Create(c *fiber.Ctx) error {
 func (s *AlumniService) Update(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
-		return c.Status(400).JSON(fiber.Map{"success": false, "message": "ID tidak valid"})
+		return c.Status(400).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "id tidak valid",
+		})
 	}
 
 	var in model.UpdateAlumniReq
 	if err := c.BodyParser(&in); err != nil {
-		return c.Status(400).JSON(fiber.Map{"success": false, "message": "body tidak valid"})
-	}
-	if in.Nama == "" || in.Jurusan == "" || in.Email == "" {
-		return c.Status(400).JSON(fiber.Map{"success": false, "message": "nama, jurusan, email wajib"})
+		return c.Status(400).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "body tidak valid",
+		})
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := s.Repo.Update(ctx, id, in); err != nil {
-		// mongo.ErrNoDocuments → 404
-		return c.Status(500).JSON(fiber.Map{"success": false, "message": err.Error()})
+		return c.Status(500).JSON(model.ErrorResponse{
+			Success: false,
+			Message: err.Error(),
+		})
 	}
-	item, _ := s.Repo.GetByID(ctx, id)
-	return c.JSON(fiber.Map{"success": true, "data": item})
+	item, err := s.Repo.GetByID(ctx, id)
+	if err != nil {
+		return c.Status(500).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "gagal mengambil data setelah update: " + err.Error(),
+		})
+	}
+	if item == nil {
+		return c.Status(404).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "data tidak ditemukan setelah update",
+		})
+	}
+	return c.JSON(model.AlumniResponse{
+		Success: true,
+		Data:    item,
+	})
 }
 
 // Delete Alumni godoc
-// @Summary Hapus alumni
-// @Description Menghapus data alumni berdasarkan ID
+// @Summary hapus alumni
+// @Description menghapus data alumni berdasarkan id (Admin Only)
 // @Tags Alumni
 // @Produce json
 // @Param id path string true "Alumni ID (hex)"
-// @Success 200 {object} map[string]interface{} // { success, message }
+// @Success 200 {object} model.SuccessMessageResponse
 // @Failure 400 {object} model.ErrorResponse
 // @Failure 404 {object} model.ErrorResponse
 // @Failure 500 {object} model.ErrorResponse
@@ -198,26 +263,34 @@ func (s *AlumniService) Update(c *fiber.Ctx) error {
 func (s *AlumniService) Delete(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
-		return c.Status(400).JSON(fiber.Map{"success": false, "message": "ID tidak valid"})
+		return c.Status(400).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "id tidak valid",
+		})
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := s.Repo.Delete(ctx, id); err != nil {
-		return c.Status(500).JSON(fiber.Map{"success": false, "message": err.Error()})
+		return c.Status(500).JSON(model.ErrorResponse{
+			Success: false,
+			Message: err.Error(),
+		})
 	}
-	return c.JSON(fiber.Map{"success": true, "message": "hapus ok"})
+	return c.JSON(model.SuccessMessageResponse{
+		Success: true,
+		Message: "data alumni berhasil dihapus",
+	})
 }
 
-
 // List By Jurusan godoc
-// @Summary Daftar alumni berdasarkan jurusan
-// @Description Mengambil daftar alumni berdasarkan jurusan
+// @Summary daftar alumni berdasarkan jurusan
+// @Description mengambil daftar alumni berdasarkan jurusan
 // @Tags Alumni
 // @Produce json
 // @Param jurusan path string true "Nama jurusan"
-// @Success 200 {object} map[string]interface{} // { success, count, data }
+// @Success 200 {object} model.AlumniListByJurusanResponse
 // @Failure 400 {object} model.ErrorResponse
 // @Failure 500 {object} model.ErrorResponse
 // @Security BearerAuth
@@ -225,8 +298,9 @@ func (s *AlumniService) Delete(c *fiber.Ctx) error {
 func (s *AlumniService) ListByJurusan(c *fiber.Ctx) error {
 	jurusan := c.Params("jurusan")
 	if jurusan == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false, "message": "parameter jurusan wajib diisi",
+		return c.Status(400).JSON(model.ErrorResponse{
+			Success: false,
+			Message: "parameter jurusan wajib diisi",
 		})
 	}
 
@@ -235,13 +309,14 @@ func (s *AlumniService) ListByJurusan(c *fiber.Ctx) error {
 
 	items, err := s.Repo.ListByJurusan(ctx, jurusan)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false, "message": err.Error(),
+		return c.Status(500).JSON(model.ErrorResponse{
+			Success: false,
+			Message: err.Error(),
 		})
 	}
-	return c.JSON(fiber.Map{
-		"success": true,
-		"count":   len(items),
-		"data":    items,
+	return c.JSON(model.AlumniListByJurusanResponse{
+		Success: true,
+		Count:   len(items),
+		Data:    items,
 	})
 }
